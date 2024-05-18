@@ -16,7 +16,7 @@ public class ExitDoorCheck : MonoBehaviour
     {
         
     }
-    private void OnCollisionExit(Collision dog)
+    private void OnCollisionEnter(Collision dog)
     {
         if (dog.gameObject.CompareTag("Dog"))
         {
@@ -24,10 +24,10 @@ public class ExitDoorCheck : MonoBehaviour
 
             if (dogState.CleanState == false)
             {
-                Destroy(gameObject);
+                Destroy(dog.gameObject);
                 SceneManager.LoadScene("GameOverScene"); 
             }else{
-                Destroy(gameObject);
+                Destroy(dog.gameObject);
                 SceneManager.LoadScene("YouWinScene"); 
             }
         }
