@@ -1,65 +1,83 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class finalpickupobject : MonoBehaviour
 {
-    public GameObject myHands; //reference to your hands/the position where you want your object to go
-    bool canpickup; //a bool to see if you can or cant pick up the item
-    GameObject ObjectIwantToPickUp; // the gameobject onwhich you collided with
-    bool hasItem; // a bool to see if you have an item in your hand
-                  // Start is called before the first frame update
+    public GameObject myHands; // Reference to your hands/the position where you want your object to go
+    bool canpickup; // A bool to see if you can or cant pick up the item
+    GameObject ObjectIwantToPickUp; // The gameobject on which you collided with
+    bool hasItem; // A bool to see if you have an item in your hand
 
     void Start()
     {
-        canpickup = false;    //setting both to false
+        canpickup = false; // Setting both to false
         hasItem = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (canpickup == true) // if you enter thecollider of the objecct
+        if (canpickup && !hasItem && ObjectIwantToPickUp != null)
         {
-            if (Input.GetKeyDown(KeyCode.E))  // can be e or any key 
+            if (Input.GetKeyDown(KeyCode.E))
             {
-
                 BoxCollider[] bc = ObjectIwantToPickUp.GetComponents<BoxCollider>();
                 foreach (BoxCollider b in bc)
                 {
                     b.enabled = false;
                 }
-                ObjectIwantToPickUp.GetComponent<Rigidbody>().isKinematic = true;   //makes the rigidbody not be acted upon by forces
-                ObjectIwantToPickUp.transform.position = myHands.transform.position; // sets the position of the object to your hand position
-                ObjectIwantToPickUp.transform.parent = myHands.transform; //makes the object become a child of the parent so that it moves with the hands
+                ObjectIwantToPickUp.GetComponent<Rigidbody>().isKinematic = true;
+                ObjectIwantToPickUp.transform.position = myHands.transform.position;
+                ObjectIwantToPickUp.transform.parent = myHands.transform;
                 hasItem = true;
+
+                var itemUIPrompt = ObjectIwantToPickUp.GetComponent<ItemUIPrompt>();
+                if (itemUIPrompt != null)
+                {
+                    itemUIPrompt.HidePrompt();
+                }
             }
         }
-        if (Input.GetKeyDown(KeyCode.Q) && hasItem == true) // if you have an item and get the key to remove the object, again can be any key
+
+        if (Input.GetKeyDown(KeyCode.Q) && hasItem && ObjectIwantToPickUp != null)
         {
             BoxCollider[] bc = ObjectIwantToPickUp.GetComponents<BoxCollider>();
             foreach (BoxCollider b in bc)
             {
                 b.enabled = true;
             }
-            ObjectIwantToPickUp.GetComponent<BoxCollider>().enabled = true;
-            ObjectIwantToPickUp.GetComponent<Rigidbody>().isKinematic = false; // make the rigidbody work again
+            ObjectIwantToPickUp.GetComponent<Rigidbody>().isKinematic = false;
             hasItem = false;
-            ObjectIwantToPickUp.transform.parent = null; // make the object no be a child of the hands
+            ObjectIwantToPickUp.transform.parent = null;
+            ObjectIwantToPickUp = null; // Reset the reference
+
+            
         }
     }
-    private void OnTriggerEnter(Collider other) // to see when the player enters the collider
+
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "object") //on the object you want to pick up set the tag to be anything, in this case "object"
+        if (other.gameObject.CompareTag("object"))
         {
-            canpickup = true;  //set the pick up bool to true
-            ObjectIwantToPickUp = other.gameObject; //set the gameobject you collided with to one you can reference
+            canpickup = true;
+            ObjectIwantToPickUp = other.gameObject;
+
+            var itemUIPrompt = ObjectIwantToPickUp.GetComponent<ItemUIPrompt>();
+
+                itemUIPrompt.ShowPrompt();
+            
         }
     }
+
     private void OnTriggerExit(Collider other)
     {
-        canpickup = false; //when you leave the collider set the canpickup bool to false
+        if (other.gameObject.CompareTag("object"))
+        {
+            canpickup = false;
 
+            var itemUIPrompt = other.gameObject.GetComponent<ItemUIPrompt>(); // Use 'other.gameObject' directly
+            if (itemUIPrompt != null)
+            {
+                itemUIPrompt.HidePrompt();
+            }
+        }
     }
- 
 }
