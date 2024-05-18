@@ -6,12 +6,12 @@ public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody rb;
     public float speed = 5.0f;
-    
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.useGravity = true;
+        rb.useGravity = false;  
         rb.freezeRotation = true;
     }
 
@@ -38,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
         // Apply movement to Rigidbody
         rb.velocity = new Vector3(movement.x * speed, rb.velocity.y, movement.z * speed);
 
-        // make the player face the direction it is moving
+        // Make the player face the direction it is moving
         if (movement != Vector3.zero)
         {
             transform.rotation = Quaternion.LookRotation(movement);
